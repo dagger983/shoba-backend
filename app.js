@@ -126,6 +126,48 @@ app.get("/subcategories/:id", (req, res) => {
   });
 });
 
+app.get("/offers", (req, res) => {
+  const query = "SELECT * FROM offers";
+  db.query(query, (err, results) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(results);
+  });
+});
+
+app.get("/offers/:id", (req, res) => {
+  const query = "SELECT * FROM offers WHERE id = ?";
+  db.query(query, [req.params.id], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    if (results.length === 0) {
+      res.status(404).json({ message: "Subcategory not found" });
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+
+app.post("/offers", (req, res) => {
+  const { offerCategory, imageName, productname, category, subcategory, price, imageURL, description, stock } = req.body;
+  const query = `
+    INSERT INTO offers (offerCategory, imageName, productname, category, subcategory, price, imageURL, description, stock) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  db.query(query, [offerCategory, imageName, productname, category, subcategory, price, imageURL, description, stock], (err, results) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.status(201).json({ id: results.insertId });
+  });
+});
+
+
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
 app.listen(listenPort, () => {
