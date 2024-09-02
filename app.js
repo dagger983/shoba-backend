@@ -2,23 +2,24 @@ const express = require("express");
 const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const catalyst = require('zcatalyst-sdk-node');
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(cors({
-  origin: '*', 
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
-
-
 const db = mysql.createConnection({
-  host: "braqu5zkl9babltex8a4-mysql.services.clever-cloud.com",
-  user: "ullwgxrole2feawu",
+  host:  "braqu5zkl9babltex8a4-mysql.services.clever-cloud.com",
+  user:"ullwgxrole2feawu",
   password: "VjqMqm1PJQb3oJzrAkQ8",
-  database: "braqu5zkl9babltex8a4",
+  database:  "braqu5zkl9babltex8a4",
 });
 
 db.connect((err) => {
@@ -29,7 +30,6 @@ db.connect((err) => {
   console.log("Connected to MySQL");
 });
 
-// Products endpoints
 app.get("/products", (req, res) => {
   const query = "SELECT * FROM product";
   db.query(query, (err, results) => {
@@ -145,7 +145,7 @@ app.get("/offers/:id", (req, res) => {
       return;
     }
     if (results.length === 0) {
-      res.status(404).json({ message: "Subcategory not found" });
+      res.status(404).json({ message: "Offer not found" });
       return;
     }
     res.json(results[0]);
@@ -167,7 +167,7 @@ app.post("/offers", (req, res) => {
   });
 });
 
-
+// Listen on Catalyst environment port or local port
 const listenPort = process.env.X_ZOHO_CATALYST_LISTEN_PORT || port;
 
 app.listen(listenPort, () => {
